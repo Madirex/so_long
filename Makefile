@@ -2,7 +2,7 @@ NAME        = so_long
 SRCS_DIR    = ./src/
 OBJS_DIR    = ./obj/
 LIB_DIR     = ./libs/
-INCLUDE     = -I./include -I$(LIB_DIR)minilibx-linux
+INCLUDE     = -I./include -I$(LIB_DIR)minilibx-linux -I$(LIB_DIR)libft
 MFLAGS      = -L$(LIB_DIR)minilibx-linux -lmlx -lXext -lX11 -lm -lz
 CFLAGS      = -Wall -Werror -Wextra
 
