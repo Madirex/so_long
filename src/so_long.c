@@ -29,41 +29,78 @@ void print_error_and_exit(void *param, const char *message)
     exit(1);
 }
 
-int dfs(mapdata *map_data, int pos, int *visited)
+int dfs(mapdata *map_data, int pos, int *visited, int target_pos)
 {
-    if (map_data->map[pos] == 'E')
-        return 1;
+    int directions[4];
+    int i;
+    int new_pos;
 
+    directions[0] = -1;
+    directions[1] = 1;
+    directions[2] = -map_data->size_w;
+    directions[3] = map_data->size_w;
+    if (pos == target_pos)
+        return (1);
     visited[pos] = 1;
-
-    int directions[4] = {-1, 1, -map_data->size_w, map_data->size_w};
-
-    for (int i = 0; i < 4; i++)
+    i = 0;
+    while (i < 4)
     {
-        int new_pos = pos + directions[i];
-
+        new_pos = pos + directions[i];
         if (new_pos >= 0 && new_pos < map_data->map_size &&
-            map_data->map[new_pos] != '1' && visited[new_pos] == 0)
+            map_data->map[new_pos] != '1' && (map_data->map[target_pos] == 'E' || map_data->map[new_pos] != 'E') && visited[new_pos] == 0)
         {
-            if (dfs(map_data, new_pos, visited))
-                return 1;
+            if (dfs(map_data, new_pos, visited, target_pos))
+                return (1);
         }
+        i++;
     }
-
-    return 0;
+    return (0);
 }
 
 int is_exit_reachable(mapdata *map_data)
 {
-    int *visited = (int *)malloc(map_data->map_size * sizeof(int));
+    int *visited;
+    visited = (int *)malloc(map_data->map_size * sizeof(int));
     if (!visited)
         print_error_and_exit(map_data, "Memory allocation error.");
     for (int i = 0; i < map_data->map_size; i++)
         visited[i] = 0;
     int player_pos = map_data->player_pos;
-    int result = dfs(map_data, player_pos, visited);
+
+    int exit_pos;
+    for (int i = 0; i < map_data->map_size; i++)
+    {
+        if (map_data->map[i] == 'E')
+        {
+            exit_pos = i;
+            break;
+        }
+    }
+
+    int result = dfs(map_data, player_pos, visited, exit_pos);
+    if (result == 0)
+    {
+        free(visited);
+        return (0);
+    }
+
+    // Comprobar las monedas
+    for (int i = 0; i < map_data->map_size; i++)
+    {
+        if (map_data->map[i] == 'C')
+        {
+            for (int j = 0; j < map_data->map_size; j++)
+                visited[j] = 0;
+            result = dfs(map_data, player_pos, visited, i);
+            if (result == 0)
+            {
+                free(visited);
+                return (0);
+            }
+        }
+    }
     free(visited);
-    return result;
+    return (1);
 }
 
 int print_map(mapdata *map_data)
