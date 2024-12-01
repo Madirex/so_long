@@ -57,47 +57,58 @@ int dfs(mapdata *map_data, int pos, int *visited, int target_pos)
     return (0);
 }
 
+//TODO: DO refactor
 int is_exit_reachable(mapdata *map_data)
 {
     int *visited;
+    int i;
+    int j;
+    int result;
+
     visited = (int *)malloc(map_data->map_size * sizeof(int));
     if (!visited)
         print_error_and_exit(map_data, "Memory allocation error.");
-    for (int i = 0; i < map_data->map_size; i++)
+    i = 0;
+    while (i < map_data->map_size)
+    {
         visited[i] = 0;
-    int player_pos = map_data->player_pos;
-
-    int exit_pos;
-    for (int i = 0; i < map_data->map_size; i++)
+        i++;
+    }
+    result = 0;
+    i = 0;
+    while (i < map_data->map_size)
     {
         if (map_data->map[i] == 'E')
         {
-            exit_pos = i;
+            result = dfs(map_data, map_data->player_pos, visited, i);
             break;
         }
+        i++;
     }
-
-    int result = dfs(map_data, player_pos, visited, exit_pos);
     if (result == 0)
     {
         free(visited);
         return (0);
     }
-
-    // Comprobar las monedas
-    for (int i = 0; i < map_data->map_size; i++)
+    i = 0;
+    while (i < map_data->map_size)
     {
         if (map_data->map[i] == 'C')
         {
-            for (int j = 0; j < map_data->map_size; j++)
+            j = 0;
+            while (j < map_data->map_size)
+            {
                 visited[j] = 0;
-            result = dfs(map_data, player_pos, visited, i);
+                j++;
+            }
+            result = dfs(map_data, map_data->player_pos, visited, i);
             if (result == 0)
             {
                 free(visited);
                 return (0);
             }
         }
+        i++;
     }
     free(visited);
     return (1);
@@ -105,8 +116,11 @@ int is_exit_reachable(mapdata *map_data)
 
 int print_map(mapdata *map_data)
 {
-    int i = 0;
-    int current_w = 0;
+    int i;
+    int current_w;
+
+    i = 0;
+    current_w = 0;
     ft_putchar_fd('\n', 1);
     ft_putstr_fd("Player moves: ", 1);
     ft_putnbr_fd(map_data->player_moves, 1);
@@ -129,6 +143,7 @@ int print_map(mapdata *map_data)
     return (0);
 }
 
+//TODO: DO refactor
 void draw_map(mapdata *map_data)
 {
     print_map(map_data);
@@ -186,15 +201,15 @@ void draw_map(mapdata *map_data)
     }
 
     // Dibujar el mapa en el buffer
-    for (y = 0; y < map_data->size_h; y++)
+    y = 0;
+    while (y < map_data->size_h)
     {
-        for (x = 0; x < map_data->size_w; x++)
+        x = 0;
+        while (x < map_data->size_w)
         {
             char cell = map_data->map[y * map_data->size_w + x];
             cell_x = x * img_width;
             cell_y = y * img_height;
-
-            // Dibujar las imágenes en el buffer
             if (cell == '1') // Pared
                 mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, wall_img, cell_x, cell_y);
             else if (cell == '0') // Espacio vacío
@@ -205,7 +220,9 @@ void draw_map(mapdata *map_data)
                 mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, coin_img, cell_x, cell_y);
             else if (cell == 'E') // Salida
                 mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, exit_img, cell_x, cell_y);
+            x++;
         }
+        y++;
     }
 
 char *move_str = ft_itoa(map_data->player_moves);
@@ -268,124 +285,59 @@ int player_collision_action(mapdata *map_data, int new_pos)
     return (1);
 }
 
-int walk_left(mapdata *map_data)
+int walk(mapdata *map_data, int move_offset)
 {
     int player_pos;
     int new_pos;
     int dest_col_index;
 
     player_pos = map_data->player_pos;
-    new_pos = player_pos - 1;
+    new_pos = player_pos + move_offset;
     dest_col_index = new_pos % map_data->size_w;
-    if (dest_col_index < 0 || dest_col_index == map_data->size_w - 1 || map_data->map[new_pos] == '1')
+    if (dest_col_index < 0 || dest_col_index >= map_data->size_w || map_data->map[new_pos] == '1')
         return (0);
     if (!player_collision_action(map_data, new_pos))
         return (0);
-    map_data->player_dir = 0;
+    if (move_offset == -1)
+        map_data->player_dir = 0;
+    else if (move_offset == 1)
+        map_data->player_dir = 1;
+    else if (move_offset == -map_data->size_w)
+        map_data->player_dir = 2;
+    else if (move_offset == map_data->size_w)
+        map_data->player_dir = 3;
     map_data->map[player_pos] = '0';
     map_data->map[new_pos] = 'P';
     map_data->player_pos = new_pos;
     return (1);
 }
 
-int walk_right(mapdata *map_data)
+int key_hook(int keycode, void *param __attribute__((unused)))
 {
-    int player_pos;
-    int new_pos;
-    int dest_col_index;
+    mapdata *map_data;
+    int direction;
 
-    player_pos = map_data->player_pos;
-    new_pos = player_pos + 1;
-    dest_col_index = new_pos % map_data->size_w;
-    if (dest_col_index == 0 || dest_col_index >= map_data->size_w || map_data->map[new_pos] == '1')
-        return (0);
-    if (!player_collision_action(map_data, new_pos))
-        return (0);
-    map_data->player_dir = 1;
-    map_data->map[player_pos] = '0';
-    map_data->map[new_pos] = 'P';
-    map_data->player_pos = new_pos;
-    return (1);
-}
-
-int walk_up(mapdata *map_data)
-{
-    int player_pos;
-    int new_pos;
-
-    player_pos = map_data->player_pos;
-    new_pos = player_pos - map_data->size_w;
-    if (new_pos < 0 || map_data->map[new_pos] == '1')
-        return (0);
-    if (!player_collision_action(map_data, new_pos))
-        return (0);
-    map_data->player_dir = 2;
-    map_data->map[player_pos] = '0';
-    map_data->map[new_pos] = 'P';
-    map_data->player_pos = new_pos;
-    return (1);
-}
-
-int walk_down(mapdata *map_data)
-{
-    int player_pos;
-    int new_pos;
-
-    player_pos = map_data->player_pos;
-    new_pos = player_pos + map_data->size_w;
-    if (new_pos >= map_data->map_size || map_data->map[new_pos] == '1')
-        return (0);
-    if (!player_collision_action(map_data, new_pos))
-        return (0);
-    map_data->player_dir = 3;
-    map_data->map[player_pos] = '0';
-    map_data->map[new_pos] = 'P';
-    map_data->player_pos = new_pos;
-    return (1);
-}
-
-int	key_hook(int keycode, void *param __attribute__((unused)))
-{
-    mapdata *map_data = (mapdata *)param;
-
-	if (keycode == 65307)
-	{
-		ft_putstr_fd("Escape key pressed. Closing window...\n", 2);
-		close_window(param);
-	}
+    map_data = (mapdata *)param;
+    direction = 0;
+    if (keycode == 65307)
+    {
+        ft_putstr_fd("Escape key pressed. Closing window...\n", 2);
+        close_window(param);
+    }
     else if (keycode == 119 || keycode == 65362)
-    {
-        if (walk_up(param))
-        {
-            draw_map(param);
-            map_data->player_moves++;
-        }
-    }
+        direction = -map_data->size_w;
     else if (keycode == 115 || keycode == 65364)
-    {
-        if (walk_down(param))
-        {
-            draw_map(param);
-            map_data->player_moves++;
-        }
-    }
+        direction = map_data->size_w;
     else if (keycode == 97 || keycode == 65361)
-    {
-        if (walk_left(param))
-        {
-            draw_map(param);
-            map_data->player_moves++;
-        }
-    }
+        direction = -1;
     else if (keycode == 100 || keycode == 65363)
+        direction = 1;
+    if (direction && walk(map_data, direction))
     {
-        if (walk_right(param))
-        {
-            draw_map(param);
-            map_data->player_moves++;
-        }
+        draw_map(param);
+        map_data->player_moves++;
     }
-	return (0);
+    return (0);
 }
 
 int is_valid_map_char(char c)
@@ -395,6 +347,7 @@ int is_valid_map_char(char c)
     return (0);
 }
 
+//TODO: DO refactor
 void assign_map_data(int fd, mapdata *map_data)
 {
     char c;
@@ -470,50 +423,54 @@ void assign_map_data(int fd, mapdata *map_data)
 
     if (map_data->size_w == 0 || map_data->size_h == 0)
         print_error_and_exit(&map_data, "The file has an invalid number of columns or rows.");
+    map_data->map_size = map_data->size_w * map_data->size_h;
+    map_data->map = (char *)malloc(map_data->map_size * sizeof(char));
+	map_data->img.mlx = mlx_init();
+	map_data->img.mlx_win = mlx_new_window(map_data->img.mlx, map_data->size_w * 64, map_data->size_h * 64, "Lite Retro War Game - C Version");
+    if (!map_data->map)
+        print_error_and_exit(&map_data, "Memory allocation error.");
+}
+
+void init_map_data(mapdata *map_data)
+{
+    map_data->player_pos = -1;
+    map_data->player_dir = 1;
+    map_data->player_moves = 0;
+    map_data->player_coins = 0;
+    map_data->map_coins = 0;
+    map_data->size_w = 0;
+    map_data->size_h = 0;
+    map_data->map_size = 0;
+}
+
+int open_file(const char *path) {
+    int fd = open(path, O_RDONLY);
+    if (fd == -1)
+        print_error_and_exit(NULL, "File not found.");
+    return fd;
 }
 
 int main(int argc, char *argv[]) {
-    mapdata map_data;
-    map_data.map_coins = 0;
-    map_data.player_moves = 0;
-    map_data.player_coins = 0;
-    map_data.player_pos = -1;
-    map_data.player_dir = 1;
     int fd;
+    int chars_count;
+    mapdata map_data;
 
+    init_map_data(&map_data);
     if (argc != 2)
         print_error_and_exit(NULL, "Use: ./so_long <file>");
-    fd = open(argv[1], O_RDONLY);
-    if (fd == -1)
-        print_error_and_exit(NULL, "File not found.");
-
+    fd = open_file(argv[1]);
     assign_map_data(fd, &map_data);
-    map_data.map_size = map_data.size_w * map_data.size_h;
-    map_data.map = (char *)malloc(map_data.map_size * sizeof(char));
-
-    // Inicialización
-	map_data.img.mlx = mlx_init();
-    int window_width = map_data.size_w * 64;
-    int window_height = map_data.size_h * 64;
-	map_data.img.mlx_win = mlx_new_window(map_data.img.mlx, window_width, window_height, "Lite Retro War Game - C Version");
-
-    if (!map_data.map)
-        print_error_and_exit(&map_data, "Memory allocation error.");
-    int i = 0;
-    fd = open(argv[1], O_RDONLY);
-    if (fd == -1)
-        print_error_and_exit(&map_data, "File not found.");
-    while (i < map_data.map_size && read(fd, &map_data.map[i], 1) == 1)
+    chars_count = 0;
+    fd = open_file(argv[1]);
+    while (chars_count < map_data.map_size && read(fd, &map_data.map[chars_count], 1) == 1)
     {
-        if (map_data.map[i] != '\n')
-            i++;
+        if (map_data.map[chars_count] != '\n')
+            chars_count++;
     }
-
     if (!is_exit_reachable(&map_data))
         print_error_and_exit(&map_data, "The map has no valid path to the exit.");
-
     draw_map(&map_data);
-    if (i != map_data.map_size)
+    if (chars_count != map_data.map_size)
         print_error_and_exit(&map_data, "The file has an invalid number of characters.");
     close(fd);
 	mlx_hook(map_data.img.mlx_win, 17, 0, close_window, &map_data);
