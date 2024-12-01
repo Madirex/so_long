@@ -1,33 +1,4 @@
-#include "libft.h"
-#include "mlx.h"
 #include "so_long.h"
-#include <fcntl.h>
-
-void free_mapdata(void *param)
-{
-    mapdata *map_data = (mapdata *)param;
-    t_data *img = &map_data->img;
-
-    if (map_data->map)
-        free(map_data->map);
-    if (img->mlx_win)
-        mlx_destroy_window(img->mlx, img->mlx_win);
-    if (img->mlx)
-    {
-        mlx_destroy_display(img->mlx);
-        free(img->mlx);
-    }
-}
-
-void print_error_and_exit(void *param, const char *message)
-{
-    if (param)
-        free_mapdata(param);
-    ft_putstr_fd("Error\n", 2);
-    ft_putstr_fd((char *) message, 2);
-    ft_putstr_fd("\n", 2);
-    exit(1);
-}
 
 int dfs(mapdata *map_data, int pos, int *visited, int target_pos)
 {
@@ -114,7 +85,7 @@ int is_exit_reachable(mapdata *map_data)
     return (1);
 }
 
-int print_map(mapdata *map_data)
+static int print_map(mapdata *map_data)
 {
     int i;
     int current_w;
@@ -258,89 +229,7 @@ free(coin_display);
 
 }
 
-int close_window(void *param)
-{
-    free_mapdata(param);
-    exit(0);
-}
-
-int player_collision_action(mapdata *map_data, int new_pos)
-{
-    if (map_data->map[new_pos] == 'C')
-    {
-        map_data->player_coins++;
-        ft_putstr_fd("Player collected a coin.\n", 1);
-    }
-    else if (map_data->map[new_pos] == 'E')
-    {
-        if (map_data->player_coins < map_data->map_coins)
-        {
-            ft_putstr_fd("⚠️ Player needs to collect all coins before exiting.\n", 1);
-            draw_map(map_data);
-            return (0);
-        }
-        ft_putstr_fd("Player exited the map.\n", 1);
-        close_window(map_data);
-    }
-    return (1);
-}
-
-int walk(mapdata *map_data, int move_offset)
-{
-    int player_pos;
-    int new_pos;
-    int dest_col_index;
-
-    player_pos = map_data->player_pos;
-    new_pos = player_pos + move_offset;
-    dest_col_index = new_pos % map_data->size_w;
-    if (dest_col_index < 0 || dest_col_index >= map_data->size_w || map_data->map[new_pos] == '1')
-        return (0);
-    if (!player_collision_action(map_data, new_pos))
-        return (0);
-    if (move_offset == -1)
-        map_data->player_dir = 0;
-    else if (move_offset == 1)
-        map_data->player_dir = 1;
-    else if (move_offset == -map_data->size_w)
-        map_data->player_dir = 2;
-    else if (move_offset == map_data->size_w)
-        map_data->player_dir = 3;
-    map_data->map[player_pos] = '0';
-    map_data->map[new_pos] = 'P';
-    map_data->player_pos = new_pos;
-    return (1);
-}
-
-int key_hook(int keycode, void *param __attribute__((unused)))
-{
-    mapdata *map_data;
-    int direction;
-
-    map_data = (mapdata *)param;
-    direction = 0;
-    if (keycode == 65307)
-    {
-        ft_putstr_fd("Escape key pressed. Closing window...\n", 2);
-        close_window(param);
-    }
-    else if (keycode == 119 || keycode == 65362)
-        direction = -map_data->size_w;
-    else if (keycode == 115 || keycode == 65364)
-        direction = map_data->size_w;
-    else if (keycode == 97 || keycode == 65361)
-        direction = -1;
-    else if (keycode == 100 || keycode == 65363)
-        direction = 1;
-    if (direction && walk(map_data, direction))
-    {
-        draw_map(param);
-        map_data->player_moves++;
-    }
-    return (0);
-}
-
-int is_valid_map_char(char c)
+static int is_valid_map_char(char c)
 {
     if (c == '1' || c == '0' || c == 'P' || c == 'E' || c == 'C')
         return (1);
@@ -401,13 +290,10 @@ void assign_map_data(int fd, mapdata *map_data)
             actual_w = 0;
         }
     }
-
     if (is_exit == 0)
         print_error_and_exit(&map_data, "The file has no exit.");
-
     if (map_data->player_pos == -1)
         print_error_and_exit(&map_data, "The file has no player.");
-
     // Procesar la última línea si no termina con '\n'
     if (actual_w > 0)
     {
@@ -420,7 +306,6 @@ void assign_map_data(int fd, mapdata *map_data)
 
     if (!last_line_walled)
         print_error_and_exit(&map_data, "The file has an invalid last line. It must have at least one walkable cell.");
-
     if (map_data->size_w == 0 || map_data->size_h == 0)
         print_error_and_exit(&map_data, "The file has an invalid number of columns or rows.");
     map_data->map_size = map_data->size_w * map_data->size_h;
@@ -441,13 +326,6 @@ void init_map_data(mapdata *map_data)
     map_data->size_w = 0;
     map_data->size_h = 0;
     map_data->map_size = 0;
-}
-
-int open_file(const char *path) {
-    int fd = open(path, O_RDONLY);
-    if (fd == -1)
-        print_error_and_exit(NULL, "File not found.");
-    return fd;
 }
 
 int main(int argc, char *argv[]) {

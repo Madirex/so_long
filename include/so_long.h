@@ -1,3 +1,7 @@
+#include "libft.h"
+#include "mlx.h"
+#include <fcntl.h>
+
 typedef struct	s_data {
 	void	*img;
 	char	*addr;
@@ -21,3 +25,11 @@ typedef struct {
     void *buffer_img;
     t_data img;
 } mapdata;
+
+void print_error_and_exit(void *param, const char *message);
+int close_window(void *param);
+int open_file(const char *path);
+
+int key_hook(int keycode, void *param);
+
+void draw_map(mapdata *map_data);
