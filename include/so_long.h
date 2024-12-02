@@ -32,4 +32,6 @@ int open_file(const char *path);
 
 int key_hook(int keycode, void *param);
 
+int is_exit_reachable(mapdata *map_data);
+
 void draw_map(mapdata *map_data);
