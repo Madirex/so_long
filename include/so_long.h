@@ -45,4 +45,8 @@ int is_exit_reachable(mapdata *map_data);
 
 void assign_map_data(int fd, mapdata *map_data);
 
+int verify_image_load(mapdata *map_data, t_images *images);
+void draw_images(mapdata *map_data, t_images *images, int img_size);
+void destroy_all_images(mapdata *map_data, t_images *images);
+
 void draw_map(mapdata *map_data);
