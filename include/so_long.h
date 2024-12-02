@@ -29,9 +29,12 @@ typedef struct {
 void print_error_and_exit(void *param, const char *message);
 int close_window(void *param);
 int open_file(const char *path);
+int is_valid_map_char(char c);
 
 int key_hook(int keycode, void *param);
 
 int is_exit_reachable(mapdata *map_data);
+
+void assign_map_data(int fd, mapdata *map_data);
 
 void draw_map(mapdata *map_data);

@@ -8,7 +8,7 @@ CFLAGS      = -Wall -Werror -Wextra
 
 LIBFT_PATH  = $(LIB_DIR)libft/libft.a
 
-SRC_FILES   = utils player_actions pathfinding so_long
+SRC_FILES   = utils player_actions pathfinding map_loader so_long
 SRCS        = $(addprefix $(SRCS_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJS        = $(addprefix $(OBJS_DIR), $(addsuffix .o, $(SRC_FILES)))
 

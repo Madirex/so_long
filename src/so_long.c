@@ -144,93 +144,6 @@ free(coin_display);
 
 }
 
-static int is_valid_map_char(char c)
-{
-    if (c == '1' || c == '0' || c == 'P' || c == 'E' || c == 'C')
-        return (1);
-    return (0);
-}
-
-//TODO: DO refactor
-void assign_map_data(int fd, mapdata *map_data)
-{
-    char c;
-    int actual_w;
-    int is_exit = 0;
-    int last_line_walled = 1;
-
-    actual_w = 0;
-    map_data->size_w = 0;
-    map_data->size_h = 0;
-    
-    while (read(fd, &c, 1) == 1)
-    {
-        if (c != '\n')
-        {
-            if (c != '1')
-            {
-                last_line_walled = 0;
-                if (actual_w == 0 || map_data->size_h == 0 || actual_w == map_data->size_w - 1)
-                    print_error_and_exit(&map_data, "The file has invalid characters in the map limits.");
-            }
-            if (c == 'P')
-            {
-                if (map_data->player_pos != -1)
-                    print_error_and_exit(&map_data, "The file has more than one player.");
-                map_data->player_pos = map_data->size_w * map_data->size_h + actual_w;
-            }
-            else if (c == 'E')
-            {
-                if (is_exit)
-                    print_error_and_exit(&map_data, "The file has more than one exit.");
-                is_exit = 1;
-            }
-            else if (c == 'C')
-                map_data->map_coins++;
-
-            actual_w++;
-            if (is_valid_map_char(c) == 0)
-                print_error_and_exit(&map_data, "The file has invalid characters.");
-        }
-        else
-        {
-            last_line_walled = 1;
-            if (actual_w == 0)
-                print_error_and_exit(&map_data, "The file has an invalid number of columns.");
-            map_data->size_h = map_data->size_h + 1;
-            if (map_data->size_w == 0)
-                map_data->size_w = actual_w;
-            else if (map_data->size_w != actual_w)
-                print_error_and_exit(&map_data, "The file has an invalid number of columns.");
-            actual_w = 0;
-        }
-    }
-    if (is_exit == 0)
-        print_error_and_exit(&map_data, "The file has no exit.");
-    if (map_data->player_pos == -1)
-        print_error_and_exit(&map_data, "The file has no player.");
-    // Procesar la última línea si no termina con '\n'
-    if (actual_w > 0)
-    {
-        map_data->size_h++; // Aseguramos que también se cuenta la última línea
-        if (map_data->size_w == 0)
-            map_data->size_w = actual_w;
-        else if (map_data->size_w != actual_w)
-            print_error_and_exit(&map_data, "The file has an invalid number of columns.");
-    }
-
-    if (!last_line_walled)
-        print_error_and_exit(&map_data, "The file has an invalid last line. It must have at least one walkable cell.");
-    if (map_data->size_w == 0 || map_data->size_h == 0)
-        print_error_and_exit(&map_data, "The file has an invalid number of columns or rows.");
-    map_data->map_size = map_data->size_w * map_data->size_h;
-    map_data->map = (char *)malloc(map_data->map_size * sizeof(char));
-	map_data->img.mlx = mlx_init();
-	map_data->img.mlx_win = mlx_new_window(map_data->img.mlx, map_data->size_w * 64, map_data->size_h * 64, "Lite Retro War Game - C Version");
-    if (!map_data->map)
-        print_error_and_exit(&map_data, "Memory allocation error.");
-}
-
 void init_map_data(mapdata *map_data)
 {
     map_data->player_pos = -1;
@@ -243,7 +156,8 @@ void init_map_data(mapdata *map_data)
     map_data->map_size = 0;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int fd;
     int chars_count;
     mapdata map_data;

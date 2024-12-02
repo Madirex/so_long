@@ -39,3 +39,10 @@ int open_file(const char *path)
         print_error_and_exit(NULL, "File not found.");
     return (fd);
 }
+
+int is_valid_map_char(char c)
+{
+    if (c == '1' || c == '0' || c == 'P' || c == 'E' || c == 'C')
+        return (1);
+    return (0);
+}
