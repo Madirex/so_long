@@ -29,120 +29,126 @@ static int print_map(mapdata *map_data)
     return (0);
 }
 
-//TODO: DO refactor
-void draw_map(mapdata *map_data)
+
+
+void draw_stats(mapdata *map_data)
 {
-    print_map(map_data);
+    char *move_str;
+    char *coin_str;
+    char *move_display;
+    char *coin_display;
 
-    // Crear una imagen "buffer" para no borrar la ventana
-    void *buffer_img = mlx_new_image(map_data->img.mlx, 1, 1);
+    move_str = ft_itoa(map_data->player_moves);
+    coin_str = ft_itoa(map_data->player_coins);
+    move_display = ft_strjoin("Moves: ", move_str);
+    coin_display = ft_strjoin("Coins: ", coin_str);
 
-    // Coordenadas de la celda
-    int x, y, cell_x, cell_y;
-    int img_width = 64;
-    int img_height = 64;
+    mlx_string_put(map_data->img.mlx, map_data->img.mlx_win, 10, 10, 0xFFFFFF, move_display);
+    mlx_string_put(map_data->img.mlx, map_data->img.mlx_win, 10, 30, 0xFFFFFF, coin_display);
+    free(move_str);
+    free(coin_str);
+    free(move_display);
+    free(coin_display);
+}
 
-    char *player_spr;
-
-    int player_dir = map_data->player_dir;
-
+char *get_player_sprite(int player_dir)
+{
     if (player_dir == 0)
-        player_spr = "textures/player_left.xpm";
+        return ("textures/player_left.xpm");
     else if (player_dir == 1)
-        player_spr = "textures/player_right.xpm";
+        return ("textures/player_right.xpm");
     else if (player_dir == 2)
-        player_spr = "textures/player_up.xpm";
+        return ("textures/player_up.xpm");
     else
-        player_spr = "textures/player_down.xpm";
-    // Cargar las imágenes (esto ocurre cada vez que dibujas el mapa)
-    void *wall_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/wall.xpm", &img_width, &img_height);
-    void *empty_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/air.xpm", &img_width, &img_height);
-    void *player_img = mlx_xpm_file_to_image(map_data->img.mlx, player_spr, &img_width, &img_height);
-    void *coin_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/coin.xpm", &img_width, &img_height);
-    void *exit_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/goal.xpm", &img_width, &img_height);
+        return ("textures/player_down.xpm");
+}
 
-    // Verificar si las imágenes se cargaron correctamente
-    if (!wall_img || !empty_img || !player_img || !coin_img || !exit_img)
+int verify_image_load(mapdata *map_data, t_images *images)
+{
+    if (!images->wall_img || !images->empty_img || !images->player_img || !images->coin_img || !images->exit_img)
     {
-        // Liberar las imágenes anteriores antes de destruir las nuevas imágenes
-        if (wall_img)
-            mlx_destroy_image(map_data->img.mlx, wall_img);
-
-        if (empty_img)
-            mlx_destroy_image(map_data->img.mlx, empty_img);
-
-        if (player_img)
-            mlx_destroy_image(map_data->img.mlx, player_img);
-
-        if (coin_img)
-            mlx_destroy_image(map_data->img.mlx, coin_img);
-
-        if (exit_img)
-            mlx_destroy_image(map_data->img.mlx, exit_img);
-
-        // Liberar el buffer
-        mlx_destroy_image(map_data->img.mlx, buffer_img);
-
-        print_error_and_exit(map_data, "Error loading textures.");
+        if (images->wall_img)
+            mlx_destroy_image(map_data->img.mlx, images->wall_img);
+        if (images->empty_img)
+            mlx_destroy_image(map_data->img.mlx, images->empty_img);
+        if (images->player_img)
+            mlx_destroy_image(map_data->img.mlx, images->player_img);
+        if (images->coin_img)
+            mlx_destroy_image(map_data->img.mlx, images->coin_img);
+        if (images->exit_img)
+            mlx_destroy_image(map_data->img.mlx, images->exit_img);
+        return (0);
     }
+    return (1);
+}
 
-    // Dibujar el mapa en el buffer
+void draw_images(mapdata *map_data, t_images *images, int img_size)
+{
+    char cell;
+    int x;
+    int y;
+
     y = 0;
     while (y < map_data->size_h)
     {
         x = 0;
         while (x < map_data->size_w)
         {
-            char cell = map_data->map[y * map_data->size_w + x];
-            cell_x = x * img_width;
-            cell_y = y * img_height;
-            if (cell == '1') // Pared
-                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, wall_img, cell_x, cell_y);
-            else if (cell == '0') // Espacio vacío
-                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, empty_img, cell_x, cell_y);
-            else if (cell == 'P') // Jugador
-                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, player_img, cell_x, cell_y);
-            else if (cell == 'C') // Moneda
-                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, coin_img, cell_x, cell_y);
-            else if (cell == 'E') // Salida
-                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, exit_img, cell_x, cell_y);
+            cell = map_data->map[y * map_data->size_w + x];
+            if (cell == '1')
+                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, images->wall_img, x * img_size, y * img_size);
+            else if (cell == '0')
+                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, images->empty_img, x * img_size, y * img_size);
+            else if (cell == 'P')
+                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, images->player_img, x * img_size, y * img_size);
+            else if (cell == 'C')
+                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, images->coin_img, x * img_size, y * img_size);
+            else if (cell == 'E')
+                mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, images->exit_img, x * img_size, y * img_size);
             x++;
         }
         y++;
     }
-
-char *move_str = ft_itoa(map_data->player_moves);
-char *coin_str = ft_itoa(map_data->player_coins);
-
-// Creamos las cadenas completas
-char *move_display = ft_strjoin("Moves: ", move_str);
-char *coin_display = ft_strjoin("Coins: ", coin_str);
-
-// Dibujamos el texto en la ventana
-mlx_string_put(map_data->img.mlx, map_data->img.mlx_win, 10, 10, 0xFFFFFF, move_display);
-mlx_string_put(map_data->img.mlx, map_data->img.mlx_win, 10, 30, 0xFFFFFF, coin_display);
-
-// Liberamos la memoria de las cadenas temporales
-free(move_str);
-free(coin_str);
-free(move_display);
-free(coin_display);
-
-
-    // Actualizar la ventana con el buffer (sin limpiar la ventana antes)
-    mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, buffer_img, 0, 0);
-
-    // Liberar las imágenes anteriores antes de destruir las nuevas imágenes
-    mlx_destroy_image(map_data->img.mlx, wall_img);
-    mlx_destroy_image(map_data->img.mlx, empty_img);
-    mlx_destroy_image(map_data->img.mlx, player_img);
-    mlx_destroy_image(map_data->img.mlx, coin_img);
-    mlx_destroy_image(map_data->img.mlx, exit_img);
-
-    // Liberar el buffer
-    mlx_destroy_image(map_data->img.mlx, buffer_img);
-
 }
+
+void destroy_all_images(mapdata *map_data, t_images *images)
+{
+    mlx_destroy_image(map_data->img.mlx, images->wall_img);
+    mlx_destroy_image(map_data->img.mlx, images->empty_img);
+    mlx_destroy_image(map_data->img.mlx, images->player_img);
+    mlx_destroy_image(map_data->img.mlx, images->coin_img);
+    mlx_destroy_image(map_data->img.mlx, images->exit_img);
+}
+
+void draw_map(mapdata *map_data)
+{
+    t_images images;
+    void *buffer_img;
+    int img_size;
+    char *player_spr;
+
+    img_size = 64;
+    print_map(map_data);
+    buffer_img = mlx_new_image(map_data->img.mlx, 1, 1);
+    player_spr = get_player_sprite(map_data->player_dir);
+    images.wall_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/wall.xpm", &img_size, &img_size);
+    images.empty_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/air.xpm", &img_size, &img_size);
+    images.player_img = mlx_xpm_file_to_image(map_data->img.mlx, player_spr, &img_size, &img_size);
+    images.coin_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/coin.xpm", &img_size, &img_size);
+    images.exit_img = mlx_xpm_file_to_image(map_data->img.mlx, "textures/goal.xpm", &img_size, &img_size);
+    if (!verify_image_load(map_data, &images))
+    {
+        mlx_destroy_image(map_data->img.mlx, buffer_img);
+        print_error_and_exit(map_data, "Error loading textures.");
+    }
+    draw_images(map_data, &images, img_size);
+    draw_stats(map_data);
+    mlx_put_image_to_window(map_data->img.mlx, map_data->img.mlx_win, buffer_img, 0, 0);
+    destroy_all_images(map_data, &images);
+    mlx_destroy_image(map_data->img.mlx, buffer_img);
+}
+
+
 
 void init_map_data(mapdata *map_data)
 {

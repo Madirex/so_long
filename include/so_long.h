@@ -26,6 +26,14 @@ typedef struct {
     t_data img;
 } mapdata;
 
+typedef struct s_images {
+    void *wall_img;
+    void *empty_img;
+    void *player_img;
+    void *coin_img;
+    void *exit_img;
+} t_images;
+
 void print_error_and_exit(void *param, const char *message);
 int close_window(void *param);
 int open_file(const char *path);
