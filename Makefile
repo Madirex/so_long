@@ -9,8 +9,8 @@ CFLAGS      = -Wall -Werror -Wextra
 LIBFT_PATH  = $(LIB_DIR)libft/libft.a
 
 SRC_FILES   = utils player_actions pathfinding map_loader image_logic map_draw so_long
-SRCS        = $(addprefix $(SRCS_DIR), $(addsuffix .c, $(SRC_FILES)))
 OBJS        = $(addprefix $(OBJS_DIR), $(addsuffix .o, $(SRC_FILES)))
+OBJS_BONUS        = $(addprefix $(OBJS_DIR), $(addsuffix _bonus.o, $(SRC_FILES)))
 
 REPOS = $(LIB_DIR)libft $(LIB_DIR)minilibx-linux
 
@@ -36,6 +36,14 @@ $(NAME): $(OBJS)
 		$(CC) $(CFLAGS) $(OBJS) $(LIBFT_PATH) $(MFLAGS) -o $(NAME); \
 	fi
 
+bonus: $(OBJS_BONUS)
+	@echo "Compiling $@"
+	@make -C $(LIB_DIR)libft
+	@make -C $(LIB_DIR)minilibx-linux
+	@if [ ! -f $(NAME) ] || [ $(OBJS_BONUS) -nt $(NAME) ]; then \
+		$(CC) $(CFLAGS) $(OBJS_BONUS) $(LIBFT_PATH) $(MFLAGS) -o $(NAME); \
+	fi
+
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
@@ -45,9 +53,13 @@ all: $(REPOS) $(NAME)
 clean:
 	$(RM) -r $(OBJS_DIR)
 	@make clean -C $(LIB_DIR)libft
+	@make clean -C $(LIB_DIR)minilibx-linux
 
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) bonus
+	@make fclean -C $(LIB_DIR)libft
+	@make clean -C $(LIB_DIR)minilibx-linux
 
 re: fclean all
 
