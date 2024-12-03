@@ -1,6 +1,6 @@
 #include "so_long.h"
 
-static int	player_collision_action(mapdata *map_data, int new_pos)
+static int	player_collision_action(t_mapdata *map_data, int new_pos)
 {
 	if (map_data->map[new_pos] == 'C')
 	{
@@ -21,7 +21,7 @@ static int	player_collision_action(mapdata *map_data, int new_pos)
 	return (1);
 }
 
-static int	walk(mapdata *map_data, int move_offset)
+static int	walk(t_mapdata *map_data, int move_offset)
 {
 	int	player_pos;
 	int	new_pos;
@@ -51,10 +51,10 @@ static int	walk(mapdata *map_data, int move_offset)
 
 int	key_hook(int keycode, void *param)
 {
-	mapdata	*map_data;
-	int		direction;
+	t_mapdata	*map_data;
+	int			direction;
 
-	map_data = (mapdata *)param;
+	map_data = (t_mapdata *)param;
 	direction = 0;
 	if (keycode == 65307)
 	{

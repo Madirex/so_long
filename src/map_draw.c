@@ -1,6 +1,6 @@
 #include "so_long.h"
 
-static int	print_map(mapdata *map_data)
+static int	print_map(t_mapdata *map_data)
 {
 	int	i;
 	int	current_w;
@@ -29,7 +29,7 @@ static int	print_map(mapdata *map_data)
 	return (0);
 }
 
-static void	draw_stats(mapdata *map_data)
+static void	draw_stats(t_mapdata *map_data)
 {
 	char	*move_str;
 	char	*coin_str;
@@ -62,7 +62,7 @@ static char	*get_player_sprite(int player_dir)
 		return ("textures/player_down.xpm");
 }
 
-void	assign_images(mapdata *map_data,
+void	assign_images(t_mapdata *map_data,
 			t_images *images, char *player_spr, int img_size)
 {
 	images->wall_img = mlx_xpm_file_to_image(map_data->img.mlx,
@@ -77,7 +77,7 @@ void	assign_images(mapdata *map_data,
 			"textures/goal.xpm", &img_size, &img_size);
 }
 
-void	draw_map(mapdata *map_data)
+void	draw_map(t_mapdata *map_data)
 {
 	t_images	images;
 	void		*buffer_img;
@@ -92,7 +92,7 @@ void	draw_map(mapdata *map_data)
 	if (!verify_image_load(map_data, &images))
 	{
 		mlx_destroy_image(map_data->img.mlx, buffer_img);
-		print_error_and_exit(map_data, "Error loading textures.");
+		exit_error(map_data, "Error loading textures.");
 	}
 	draw_images(map_data, &images, img_size);
 	draw_stats(map_data);

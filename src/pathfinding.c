@@ -1,6 +1,6 @@
 #include "so_long.h"
 
-static int	dfs(mapdata *map_data, int pos, int *visited, int target_pos)
+static int	dfs(t_mapdata *map_data, int pos, int *visited, int target_pos)
 {
 	int	directions[4];
 	int	i;
@@ -41,7 +41,7 @@ static void	init_visited(int *visited, int map_size)
 	}
 }
 
-static int	find_exit(mapdata *map_data, int *visited)
+static int	find_exit(t_mapdata *map_data, int *visited)
 {
 	int	i;
 
@@ -55,7 +55,7 @@ static int	find_exit(mapdata *map_data, int *visited)
 	return (0);
 }
 
-static int	check_collectibles(mapdata *map_data, int *visited)
+static int	check_collectibles(t_mapdata *map_data, int *visited)
 {
 	int	i;
 
@@ -73,13 +73,13 @@ static int	check_collectibles(mapdata *map_data, int *visited)
 	return (1);
 }
 
-int	is_exit_reachable(mapdata *map_data)
+int	is_exit_reachable(t_mapdata *map_data)
 {
 	int	*visited;
 
 	visited = (int *)malloc(map_data->map_size * sizeof(int));
 	if (!visited)
-		print_error_and_exit(map_data, "Memory allocation error.");
+		exit_error(map_data, "Memory allocation error.");
 	init_visited(visited, map_data->map_size);
 	if (find_exit(map_data, visited) == 0)
 	{

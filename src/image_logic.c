@@ -1,6 +1,6 @@
 #include "so_long.h"
 
-int	verify_image_load(mapdata *map_data, t_images *images)
+int	verify_image_load(t_mapdata *map_data, t_images *images)
 {
 	if (!images->wall_img || !images->empty_img || !images->player_img
 		|| !images->coin_img || !images->exit_img)
@@ -20,12 +20,12 @@ int	verify_image_load(mapdata *map_data, t_images *images)
 	return (1);
 }
 
-void	draw_img(mapdata *map, void *img, int x, int y)
+void	draw_img(t_mapdata *map, void *img, int x, int y)
 {
 	mlx_put_image_to_window(map->img.mlx, map->img.mlx_win, img, x, y);
 }
 
-void	draw_images(mapdata *map, t_images *images, int img_size)
+void	draw_images(t_mapdata *map, t_images *images, int img_size)
 {
 	char	cell;
 	int		x;
@@ -54,7 +54,7 @@ void	draw_images(mapdata *map, t_images *images, int img_size)
 	}
 }
 
-void	destroy_all_images(mapdata *map_data, t_images *images)
+void	destroy_all_images(t_mapdata *map_data, t_images *images)
 {
 	mlx_destroy_image(map_data->img.mlx, images->wall_img);
 	mlx_destroy_image(map_data->img.mlx, images->empty_img);

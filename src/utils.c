@@ -2,10 +2,10 @@
 
 static void	free_mapdata(void *param)
 {
-	mapdata	*map_data;
-	t_data	*img;
+	t_mapdata	*map_data;
+	t_data		*img;
 
-	map_data = (mapdata *)param;
+	map_data = (t_mapdata *)param;
 	img = &map_data->img;
 	if (map_data->map)
 		free(map_data->map);
@@ -18,7 +18,7 @@ static void	free_mapdata(void *param)
 	}
 }
 
-void	print_error_and_exit(void *param, const char *message)
+void	exit_error(void *param, const char *message)
 {
 	if (param)
 		free_mapdata(param);
@@ -40,7 +40,7 @@ int	open_file(const char *path)
 
 	fd = open(path, O_RDONLY);
 	if (fd == -1)
-		print_error_and_exit(NULL, "File not found.");
+		exit_error(NULL, "File not found.");
 	return (fd);
 }
 
