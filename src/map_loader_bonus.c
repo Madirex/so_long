@@ -8,18 +8,18 @@ static void	process_character(char c, int actual_w,
 		status->last_line_walled = 0;
 		if (actual_w == 0 || map_data->size_h == 0
 			|| actual_w == map_data->size_w - 1)
-			exit_error(map_data, "Invalid chars in the map limits.");
+			exit_error(NULL, "Invalid chars in the map limits.");
 	}
 	if (c == 'P')
 	{
 		if (map_data->player_pos != -1)
-			exit_error(map_data, "The file has more than one player.");
+			exit_error(NULL, "The file has more than one player.");
 		map_data->player_pos = map_data->size_w * map_data->size_h + actual_w;
 	}
 	else if (c == 'E')
 	{
 		if (status->is_exit)
-			exit_error(map_data, "The file has more than one exit.");
+			exit_error(NULL, "The file has more than one exit.");
 		status->is_exit = 1;
 	}
 	else if (c == 'C')
@@ -33,32 +33,32 @@ static void	process_new_line(int actual_w,
 {
 	status->last_line_walled = 1;
 	if (actual_w == 0)
-		exit_error(map_data, "The file has an invalid number of columns.");
+		exit_error(NULL, "The file has an invalid number of columns.");
 	map_data->size_h = map_data->size_h + 1;
 	if (map_data->size_w == 0)
 		map_data->size_w = actual_w;
 	else if (map_data->size_w != actual_w)
-		exit_error(map_data, "The file has an invalid number of columns.");
+		exit_error(NULL, "The file has an invalid number of columns.");
 }
 
 static void	finalize_map(int actual_w, t_mapdata *map_data, t_status *status)
 {
 	if (status->is_exit == 0)
-		exit_error(map_data, "The file has no exit.");
+		exit_error(NULL, "The file has no exit.");
 	if (map_data->player_pos == -1)
-		exit_error(map_data, "The file has no player.");
+		exit_error(NULL, "The file has no player.");
 	if (actual_w > 0)
 	{
 		map_data->size_h++;
 		if (map_data->size_w == 0)
 			map_data->size_w = actual_w;
 		else if (map_data->size_w != actual_w)
-			exit_error(map_data, "The file has an invalid number of columns.");
+			exit_error(NULL, "The file has an invalid number of columns.");
 	}
 	if (!status->last_line_walled)
-		exit_error(map_data, "The file has an invalid last line.");
+		exit_error(NULL, "The file has an invalid last line.");
 	if (map_data->size_w == 0 || map_data->size_h == 0)
-		exit_error(map_data, "The file has an invalid number of cols or rows.");
+		exit_error(NULL, "The file has an invalid number of cols or rows.");
 }
 
 static void	allocate_map(t_mapdata *map_data)
