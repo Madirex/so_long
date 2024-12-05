@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 static void	free_mapdata(void *param)
 {
@@ -46,7 +46,7 @@ int	open_file(const char *path)
 
 int	is_valid_map_char(char c)
 {
-	if (c == '1' || c == '0' || c == 'P' || c == 'E' || c == 'C')
+	if (c == '1' || c == '0' || c == 'P' || c == 'E' || c == 'C' || c == 'M')
 		return (1);
 	return (0);
 }

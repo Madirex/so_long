@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 static int	dfs(t_mapdata *map_data, int pos, int *visited, int target_pos)
 {

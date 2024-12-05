@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 static int	player_collision_action(t_mapdata *map_data, int new_pos)
 {
@@ -16,6 +16,11 @@ static int	player_collision_action(t_mapdata *map_data, int new_pos)
 			return (0);
 		}
 		ft_putstr_fd("Player exited the map.\n", 1);
+		close_window(map_data);
+	}
+	else if (map_data->map[new_pos] == 'M')
+	{
+		ft_putstr_fd("🔥 Player was caught by the enemy.\n", 1);
 		close_window(map_data);
 	}
 	return (1);

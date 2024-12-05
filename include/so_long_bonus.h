@@ -1,7 +1,11 @@
-
 #include "libft.h"
 #include "mlx.h"
 #include <fcntl.h>
+
+typedef struct s_enemy
+{
+	int	dir;
+}	t_enemy;
 
 typedef struct s_data
 {
@@ -26,6 +30,8 @@ typedef struct s_mapdata
 	int		map_coins;
 	char	*map;
 	void	*buffer_img;
+	int		enemy_steps;
+	t_enemy	enemy;
 	t_data	img;
 }	t_mapdata;
 
@@ -36,6 +42,7 @@ typedef struct s_images
 	void	*player_img;
 	void	*coin_img;
 	void	*exit_img;
+	void	*enemy_img;
 }	t_images;
 
 typedef struct s_status
@@ -43,6 +50,12 @@ typedef struct s_status
 	int	is_exit;
 	int	last_line_walled;
 }	t_status;
+
+typedef struct s_game_data
+{
+	t_mapdata	*map_data;
+	int			frame_count;
+}	t_game_data;
 
 void	exit_error(void *param, const char *message);
 int		close_window(void *param);

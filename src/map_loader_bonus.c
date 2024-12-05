@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 static void	process_character(char c, int actual_w,
 	t_mapdata *map_data, t_status *status)

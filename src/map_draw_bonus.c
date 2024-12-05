@@ -1,4 +1,4 @@
-#include "so_long.h"
+#include "so_long_bonus.h"
 
 static int	print_map(t_mapdata *map_data)
 {
@@ -75,6 +75,12 @@ void	assign_images(t_mapdata *map_data,
 			"textures/coin.xpm", &img_size, &img_size);
 	images->exit_img = mlx_xpm_file_to_image(map_data->img.mlx,
 			"textures/goal.xpm", &img_size, &img_size);
+	if (map_data->enemy_steps % 2 == 0)
+		images->enemy_img = mlx_xpm_file_to_image(map_data->img.mlx,
+				"textures/enemy_1.xpm", &img_size, &img_size);
+	else
+		images->enemy_img = mlx_xpm_file_to_image(map_data->img.mlx,
+				"textures/enemy_2.xpm", &img_size, &img_size);
 }
 
 void	draw_map(t_mapdata *map_data)
