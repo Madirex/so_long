@@ -37,7 +37,7 @@ static void	process_character(char c, int actual_w,
 	else if (c == 'C')
 		map_data->map_coins++;
 	if (is_valid_map_char(c) == 0)
-		exit_error(map_data, "The file has invalid characters.");
+		exit_error(NULL, "The file has invalid characters.");
 }
 
 static void	process_new_line(int actual_w,
