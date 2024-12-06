@@ -107,6 +107,8 @@ void	assign_map_data(int fd, t_mapdata *map_data)
 			actual_w = 0;
 		}
 	}
+	if (actual_w == 0)
+		exit_error(NULL, "The file has an invalid number of rows.");
 	finalize_map(actual_w, map_data, &status);
 	allocate_map(map_data);
 }

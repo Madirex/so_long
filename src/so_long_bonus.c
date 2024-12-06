@@ -24,6 +24,7 @@ void	init_map_data(t_mapdata *map_data)
 	map_data->map_size = 0;
 	map_data->enemy.dir = 0;
 	map_data->enemy_steps = 0;
+	map_data->enemy_count = 0;
 }
 
 void	move_enemy(t_mapdata *map_data, int enemy_dir,
@@ -66,10 +67,9 @@ int	enemy_loop(t_game_data *game_data)
 	while (game_data->map_data->map[enemy_pos]
 		&& game_data->map_data->map[enemy_pos] != 'M')
 		enemy_pos++;
+	move_offset = 1;
 	if (enemy_dir == 0)
 		move_offset = -1;
-	else if (enemy_dir == 1)
-		move_offset = 1;
 	new_pos = enemy_pos + move_offset;
 	game_data->frame_count++;
 	if (game_data->frame_count >= 520)

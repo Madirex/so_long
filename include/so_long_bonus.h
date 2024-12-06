@@ -43,6 +43,7 @@ typedef struct s_mapdata
 	char	*map;
 	void	*buffer_img;
 	int		enemy_steps;
+	int		enemy_count;
 	t_enemy	enemy;
 	t_data	img;
 }	t_mapdata;

@@ -36,6 +36,8 @@ static void	process_character(char c, int actual_w,
 	}
 	else if (c == 'C')
 		map_data->map_coins++;
+	else if (c == 'M')
+		map_data->enemy_count++;
 	if (is_valid_map_char(c) == 0)
 		exit_error(NULL, "The file has invalid characters.");
 }
@@ -59,6 +61,8 @@ static void	finalize_map(int actual_w, t_mapdata *map_data, t_status *status)
 		exit_error(NULL, "The file has no exit.");
 	if (map_data->player_pos == -1)
 		exit_error(NULL, "The file has no player.");
+	if (map_data->enemy_count == 0)
+		exit_error(NULL, "The file has no enemy.");
 	if (actual_w > 0)
 	{
 		map_data->size_h++;
@@ -107,6 +111,8 @@ void	assign_map_data(int fd, t_mapdata *map_data)
 			actual_w = 0;
 		}
 	}
+	if (actual_w == 0)
+		exit_error(NULL, "The file has an invalid number of rows.");
 	finalize_map(actual_w, map_data, &status);
 	allocate_map(map_data);
 }
