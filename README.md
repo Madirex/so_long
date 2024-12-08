@@ -29,17 +29,20 @@ The enemy has a basic horizontal movement, shifting left to right.
 ### Regular Version:
 ```bash
 make
-./so_long <map>```
+./so_long <map>
+```
 
 ### Bonus Version:
 ```bash
 make bonus
-./so_long <map>```
+./so_long <map>
+```
 
 ### Example:
 ```bash
 make
-./so_long maps/map1.ber```
+./so_long maps/map1.ber
+```
 
 The game is also rendered in the console.
 
