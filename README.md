@@ -3,17 +3,12 @@ so_long is a 2D maze game where the player navigates a character to reach an exi
 
 The game checks for a valid map (enclosed by walls, with only one mandatory player), a mandatory exit, and ensures the map has a correct path. Both the exit and all the coins must be reachable. Otherwise, the path will be considered invalid. Once the validations are completed, the game starts. Maps are located in the "maps" folder.
 
-1 = Wall
-
-0 = Air
-
-P = Player
-
-C = Coin
-
-E = Exit
-
-M = Monster (only in the bonus part)
+- 1 = Wall
+- 0 = Air
+- P = Player
+- C = Coin
+- E = Exit
+- M = Monster (only in the bonus part)
 
 The map is stored in a single array, ignoring line breaks. Map data is stored in a structure, which allows identifying the row where the character to process is located. The player must collect all the coins and head to the exit (the black hole).
 
